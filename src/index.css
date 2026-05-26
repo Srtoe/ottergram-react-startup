@@ -1,0 +1,8 @@
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+a {
+  transition: 0.2s ease-in-out;
+}

@@ -5,11 +5,14 @@ class EmployeeForm extends React.Component {
   constructor(props) {
     super(props);
 
+    const savedEmployees = JSON.parse(localStorage.getItem('employees')) || [];
+
     this.state = {
       name: '',
       email: '',
       title: '',
-      department: ''
+      department: '',
+      employees: savedEmployees
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -27,13 +30,26 @@ class EmployeeForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    console.log('Employee Added:', this.state);
+    const newEmployee = {
+      name: this.state.name,
+      email: this.state.email,
+      title: this.state.title,
+      department: this.state.department
+    };
+
+    const updatedEmployees = [...this.state.employees, newEmployee];
+
+    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+
+    console.log('Employee Added:', newEmployee);
+    console.log('Saved Employees:', updatedEmployees);
 
     this.setState({
       name: '',
       email: '',
       title: '',
-      department: ''
+      department: '',
+      employees: updatedEmployees
     });
   }
 
@@ -93,6 +109,22 @@ class EmployeeForm extends React.Component {
 
           <button type="submit">Add Employee</button>
         </form>
+
+        <div className="employee-data">
+          <h3>Employee Data</h3>
+
+          {this.state.employees.length === 0 ? (
+            <p>No employees have been added yet.</p>
+          ) : (
+            <ul>
+              {this.state.employees.map((employee, index) => (
+                <li key={index}>
+                  <strong>{employee.name}</strong> - {employee.title}, {employee.department} ({employee.email})
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     );
   }

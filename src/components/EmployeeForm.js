@@ -1,5 +1,6 @@
 import React from 'react';
 import './EmployeeForm.css';
+import EmployeeList from './EmployeeList';
 
 class EmployeeForm extends React.Component {
   constructor(props) {
@@ -110,21 +111,7 @@ class EmployeeForm extends React.Component {
           <button type="submit">Add Employee</button>
         </form>
 
-        <div className="employee-data">
-          <h3>Employee Data</h3>
-
-          {this.state.employees.length === 0 ? (
-            <p>No employees have been added yet.</p>
-          ) : (
-            <ul>
-              {this.state.employees.map((employee, index) => (
-                <li key={index}>
-                  <strong>{employee.name}</strong> - {employee.title}, {employee.department} ({employee.email})
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <EmployeeList employees={this.state.employees} />
       </div>
     );
   }

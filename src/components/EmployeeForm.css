@@ -46,4 +46,28 @@
 
 .employee-form button:hover {
   background-color: #0056b3;
+}.employee-data {
+  margin-top: 20px;
+  padding: 15px;
+  border-top: 2px solid #007bff;
+  text-align: left;
+}
+
+.employee-data h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.employee-data ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.employee-data li {
+  background-color: #f4f8ff;
+  border: 1px solid #cfd9e6;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  line-height: 1.4;
 }

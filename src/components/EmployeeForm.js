@@ -1,120 +1,196 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './EmployeeForm.css';
-import EmployeeList from './EmployeeList';
 
-class EmployeeForm extends React.Component {
-  constructor(props) {
-    super(props);
+function EmployeeForm() {
+  const [employee, setEmployee] = useState({
+    name: '',
+    email: '',
+    jobTitle: '',
+    department: ''
+  });
 
-    const savedEmployees = JSON.parse(localStorage.getItem('employees')) || [];
+  const [employees, setEmployees] = useState(() => {
+    const savedEmployees = localStorage.getItem('employees');
+    return savedEmployees ? JSON.parse(savedEmployees) : [];
+  });
 
-    this.state = {
-      name: '',
-      email: '',
-      title: '',
-      department: '',
-      employees: savedEmployees
-    };
+  const [searchTerm, setSearchTerm] = useState('');
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(event) {
+  function handleChange(event) {
     const { name, value } = event.target;
 
-    this.setState({
+    setEmployee({
+      ...employee,
       [name]: value
     });
   }
 
-  handleSubmit(event) {
+  function handleSubmit(event) {
     event.preventDefault();
 
+    if (
+      employee.name === '' ||
+      employee.email === '' ||
+      employee.jobTitle === '' ||
+      employee.department === ''
+    ) {
+      alert('Please fill out all fields before adding an employee.');
+      return;
+    }
+
     const newEmployee = {
-      name: this.state.name,
-      email: this.state.email,
-      title: this.state.title,
-      department: this.state.department
+      id: Date.now(),
+      ...employee
     };
 
-    const updatedEmployees = [...this.state.employees, newEmployee];
+    const updatedEmployees = [...employees, newEmployee];
 
+    setEmployees(updatedEmployees);
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
 
-    console.log('Employee Added:', newEmployee);
-    console.log('Saved Employees:', updatedEmployees);
-
-    this.setState({
+    setEmployee({
       name: '',
       email: '',
-      title: '',
-      department: '',
-      employees: updatedEmployees
+      jobTitle: '',
+      department: ''
     });
   }
 
-  render() {
-    return (
-      <div className="employee-form-container">
-        <h2>New Employee Form</h2>
+  function handleDelete(id) {
+    const updatedEmployees = employees.filter((person) => person.id !== id);
 
-        <form className="employee-form" onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Name:</label>
+    setEmployees(updatedEmployees);
+    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+  }
+
+  const filteredEmployees = employees.filter((person) => {
+    return (
+      person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.department.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  return (
+    <section className="employee-section">
+      <div className="employee-intro">
+        <p className="section-label">INT304 Final Project</p>
+        <h1>Employee Directory</h1>
+        <p>
+          This final version improves my previous React project by using hooks,
+          controlled form inputs, local storage, search filtering, and advanced CSS
+          styling to create a more useful employee directory.
+        </p>
+      </div>
+
+      <div className="employee-layout">
+        <div className="employee-form-card">
+          <h2>Add Employee</h2>
+          <p>
+            Enter employee information below. This form avoids collecting sensitive
+            information and only stores basic directory details in the browser.
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="name">Employee Name</label>
             <input
               id="name"
-              type="text"
               name="name"
-              value={this.state.name}
-              onChange={this.handleChange}
-              required
+              type="text"
+              value={employee.name}
+              onChange={handleChange}
+              placeholder="Example: Rommel Torres"
             />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
+            <label htmlFor="email">Employee Email</label>
             <input
               id="email"
-              type="email"
               name="email"
-              value={this.state.email}
-              onChange={this.handleChange}
-              required
+              type="email"
+              value={employee.email}
+              onChange={handleChange}
+              placeholder="Example: employee@email.com"
             />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="title">Job Title:</label>
+            <label htmlFor="jobTitle">Job Title</label>
             <input
-              id="title"
+              id="jobTitle"
+              name="jobTitle"
               type="text"
-              name="title"
-              value={this.state.title}
-              onChange={this.handleChange}
-              required
+              value={employee.jobTitle}
+              onChange={handleChange}
+              placeholder="Example: Maintenance Planner"
             />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="department">Department:</label>
+            <label htmlFor="department">Department</label>
             <input
               id="department"
-              type="text"
               name="department"
-              value={this.state.department}
-              onChange={this.handleChange}
-              required
+              type="text"
+              value={employee.department}
+              onChange={handleChange}
+              placeholder="Example: Facilities"
             />
+
+            <button type="submit">Add Employee</button>
+          </form>
+        </div>
+
+        <div className="employee-data">
+          <div className="employee-data-header">
+            <div>
+              <h2>Current Employees</h2>
+              <p>Total Employees: {employees.length}</p>
+            </div>
           </div>
 
-          <button type="submit">Add Employee</button>
-        </form>
+          <label htmlFor="search">Search Employees</label>
+          <input
+            id="search"
+            type="text"
+            className="search-box"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search by name, email, title, or department"
+          />
 
-        <EmployeeList employees={this.state.employees} />
+          {filteredEmployees.length === 0 ? (
+            <p className="empty-message">No employees found.</p>
+          ) : (
+            <div className="employee-card-grid">
+              {filteredEmployees.map((person) => (
+                <div className="employee-card" key={person.id}>
+                  <h3>{person.name}</h3>
+                  <p><strong>Email:</strong> {person.email}</p>
+                  <p><strong>Title:</strong> {person.jobTitle}</p>
+                  <p><strong>Department:</strong> {person.department}</p>
+
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => handleDelete(person.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    );
-  }
+
+      <div className="future-plan">
+        <h2>Future Improvement Plan</h2>
+        <p>
+          A future improvement would be connecting this React employee directory
+          to a Python back-end project. React would handle the user interface,
+          while Python could manage employee records through a database instead
+          of only saving the data in local storage.
+        </p>
+      </div>
+    </section>
+  );
 }
 
 export default EmployeeForm;
